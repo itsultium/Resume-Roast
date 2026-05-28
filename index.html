@@ -65,6 +65,18 @@
     .side-brand.right { right: 2rem; transform: translateY(-50%); }
     @media (max-width: 960px) { .side-brand { display: none; } }
 
+    /* Theme toggle */
+    .theme-toggle { position: fixed; top: 1.25rem; right: 1.25rem; background: rgba(255,255,255,0.08); border: 0.5px solid var(--border2); border-radius: 100px; padding: 6px 14px; font-size: 12px; font-family: 'Syne', sans-serif; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; z-index: 100; font-weight: 500; }
+    .theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+
+    body.light {
+      --bg: #f4f2ed; --surface: #ffffff; --surface2: #eceae4; --surface3: #e2dfd8;
+      --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.18);
+      --text: #1a1814; --muted: #6b6760; --hint: #a09d97;
+      --accent-dim: rgba(212,168,83,0.1);
+    }
+    body.light .theme-toggle { background: rgba(0,0,0,0.05); }
+
     /* Header */
     .header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
     .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; font-weight: 500; }
@@ -192,6 +204,7 @@
 
   <span class="side-brand left">Bruder Motion</span>
   <span class="side-brand right">Bruder Motion</span>
+  <button class="theme-toggle" id="themeToggle"><i class="ti ti-sun"></i> Light</button>
 
   <div class="page">
 
@@ -318,6 +331,20 @@
   </div>
 
   <script>
+    // Theme toggle — default dark
+    const themeToggle = document.getElementById('themeToggle');
+    let isLight = localStorage.getItem('rr_theme') === 'light';
+    function applyTheme() {
+      document.body.classList.toggle('light', isLight);
+      themeToggle.innerHTML = isLight ? '<i class="ti ti-moon"></i> Dark' : '<i class="ti ti-sun"></i> Light';
+    }
+    applyTheme();
+    themeToggle.addEventListener('click', () => {
+      isLight = !isLight;
+      localStorage.setItem('rr_theme', isLight ? 'light' : 'dark');
+      applyTheme();
+    });
+
     const ENDPOINTS = {
       anthropic: 'https://api.anthropic.com/v1/messages',
       openai:    'https://api.openai.com/v1/chat/completions',
