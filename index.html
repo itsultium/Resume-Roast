@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Résumé Roast — by Bruder Motion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Syne:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.19.0/fonts/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e0d;
+      --surface: #161614;
+      --surface2: #1e1e1b;
+      --surface3: #252522;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.15);
+      --text: #f0efe8;
+      --muted: #888;
+      --hint: #555;
+      --accent: #d4a853;
+      --accent2: #e8563a;
+      --accent-dim: rgba(212,168,83,0.12);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --score-good: #4caf82;
+      --score-mid: #d4a853;
+      --score-bad: #e8563a;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    .page { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+    /* Side branding */
+    .side-brand {
+      position: fixed; top: 50%; writing-mode: vertical-rl;
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--hint); user-select: none; pointer-events: none;
+      transition: color 0.2s;
+    }
+    .side-brand.left { left: 2rem; transform: translateY(-50%) rotate(180deg); }
+    .side-brand.right { right: 2rem; transform: translateY(-50%); }
+    @media (max-width: 960px) { .side-brand { display: none; } }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 3rem; padding-top: 1rem; }
+    .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; font-weight: 500; }
+    .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(36px, 6vw, 56px); font-weight: 700; line-height: 1.05; margin-bottom: 0.75rem; }
+    .header h1 em { font-style: italic; color: var(--accent); }
+    .header p { font-size: 15px; color: var(--muted); font-weight: 300; max-width: 420px; margin: 0 auto; line-height: 1.6; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+    .card:hover { border-color: var(--border2); }
+    .card-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--hint); margin-bottom: 1rem; }
+
+    /* Upload zone */
+    .upload-zone {
+      border: 1px dashed var(--border2); border-radius: var(--radius-sm);
+      padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
+      transition: all 0.2s; background: var(--surface2); position: relative;
+    }
+    .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-dim); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-icon { font-size: 28px; color: var(--accent); margin-bottom: 0.75rem; display: block; }
+    .upload-zone h3 { font-size: 14px; font-weight: 500; margin-bottom: 0.35rem; }
+    .upload-zone p { font-size: 12px; color: var(--muted); }
+    .upload-zone.has-file { border-color: var(--score-good); background: rgba(76,175,130,0.08); }
+    .upload-zone.has-file .upload-icon { color: var(--score-good); }
+
+    .divider-text { text-align: center; color: var(--hint); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin: 1rem 0; position: relative; }
+    .divider-text::before, .divider-text::after { content: ''; position: absolute; top: 50%; width: calc(50% - 2rem); height: 0.5px; background: var(--border); }
+    .divider-text::before { left: 0; }
+    .divider-text::after { right: 0; }
+
+    textarea, input[type="text"], input[type="password"], select {
+      width: 100%; background: var(--surface2); border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 14px; font-size: 14px;
+      font-family: 'Syne', sans-serif; color: var(--text); outline: none;
+      transition: border-color 0.15s; appearance: none; resize: none;
+    }
+    textarea { line-height: 1.6; min-height: 160px; }
+    textarea:focus, input:focus, select:focus { border-color: var(--border2); }
+    textarea::placeholder, input::placeholder { color: var(--hint); }
+
+    /* Job input */
+    .job-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 520px) { .job-row { grid-template-columns: 1fr; } }
+
+    /* API section */
+    .api-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .api-header .card-label { margin-bottom: 0; }
+    .key-toggle { font-size: 12px; color: var(--accent); cursor: pointer; background: none; border: none; font-family: 'Syne', sans-serif; text-decoration: underline; padding: 0; }
+    .api-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    @media (max-width: 520px) { .api-row { grid-template-columns: 1fr; } }
+    .field-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+    .api-section { display: none; margin-top: 4px; }
+    .api-section.visible { display: block; }
+    .hint { color: var(--hint); font-weight: 400; }
+
+    /* Analyze button */
+    .analyze-btn {
+      width: 100%; background: var(--accent); border: none; border-radius: var(--radius-sm);
+      padding: 15px; font-size: 15px; font-family: 'Syne', sans-serif; font-weight: 600;
+      color: #0e0e0d; cursor: pointer; transition: opacity 0.15s, transform 0.1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px; letter-spacing: 0.03em;
+    }
+    .analyze-btn:hover { opacity: 0.88; }
+    .analyze-btn:active { transform: scale(0.99); }
+    .analyze-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .error-msg { font-size: 13px; color: var(--score-bad); margin-top: 8px; display: none; padding: 10px 14px; background: rgba(232,86,58,0.1); border-radius: var(--radius-sm); border: 0.5px solid rgba(232,86,58,0.3); }
+    .error-msg.visible { display: block; }
+
+    /* Results */
+    .results { display: none; margin-top: 1.5rem; }
+    .results.visible { display: block; }
+
+    .results-header { text-align: center; margin-bottom: 2rem; padding: 2rem; background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); }
+    .overall-score { font-family: 'Playfair Display', serif; font-size: 72px; font-weight: 700; line-height: 1; margin-bottom: 0.5rem; }
+    .overall-score.good { color: var(--score-good); }
+    .overall-score.mid { color: var(--score-mid); }
+    .overall-score.bad { color: var(--score-bad); }
+    .overall-label { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+    .overall-verdict { font-size: 15px; color: var(--text); line-height: 1.6; max-width: 500px; margin: 0 auto; }
+
+    /* Score grid */
+    .score-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 1rem; }
+    .score-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; text-align: center; }
+    .score-num { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 0.3rem; }
+    .score-num.good { color: var(--score-good); }
+    .score-num.mid { color: var(--score-mid); }
+    .score-num.bad { color: var(--score-bad); }
+    .score-cat { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+    /* Feedback sections */
+    .feedback-section { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+    .feedback-title { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+    .feedback-title i { font-size: 15px; }
+    .feedback-body { font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-wrap; }
+
+    .rewrite-box { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 1.25rem; font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-wrap; margin-top: 0.75rem; border-left: 2px solid var(--accent); }
+
+    .output-actions { display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap; }
+    .action-btn { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 7px 14px; font-size: 12px; font-family: 'Syne', sans-serif; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; font-weight: 500; }
+    .action-btn:hover { border-color: var(--border2); color: var(--text); }
+    .copied-badge { font-size: 11px; color: var(--score-good); background: rgba(76,175,130,0.15); padding: 4px 10px; border-radius: 100px; display: none; align-items: center; }
+    .copied-badge.visible { display: inline-flex; }
+
+    /* Loading */
+    .loading-state { display: none; text-align: center; padding: 3rem; }
+    .loading-state.visible { display: block; }
+    .loading-label { font-size: 13px; color: var(--muted); margin-top: 1rem; letter-spacing: 0.05em; }
+    .spinner { width: 36px; height: 36px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-dots span { animation: blink 1.2s infinite; opacity: 0; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,100%{opacity:0} 50%{opacity:1} }
+
+    /* Footer */
+    .footer { text-align: center; margin-top: 3rem; font-size: 11px; color: var(--hint); letter-spacing: 0.08em; }
+    .footer a { color: var(--hint); text-decoration: none; }
+    .footer a:hover { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+  <span class="side-brand left">Bruder Motion</span>
+  <span class="side-brand right">Bruder Motion</span>
+
+  <div class="page">
+
+    <header class="header">
+      <div class="header-eyebrow">Bruder Motion</div>
+      <h1>Résumé <em>Roast.</em></h1>
+      <p>Brutal, honest feedback from AI. Know exactly what's holding your resume back.</p>
+    </header>
+
+    <!-- Resume input -->
+    <div class="card">
+      <div class="card-label">Your Résumé</div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" />
+        <i class="ti ti-upload upload-icon" id="uploadIcon"></i>
+        <h3 id="uploadTitle">Drop your résumé here</h3>
+        <p id="uploadSub">PDF or image (PNG, JPG) — or paste below</p>
+      </div>
+
+      <div class="divider-text">or paste as text</div>
+
+      <textarea id="resumeText" placeholder="Paste your resume text here..."></textarea>
+    </div>
+
+    <!-- Job target -->
+    <div class="card">
+      <div class="card-label">Target Role <span style="color:var(--hint);font-weight:400;font-size:10px;">(optional — makes feedback sharper)</span></div>
+      <div class="job-row">
+        <div>
+          <div class="field-label">Job Title</div>
+          <input type="text" id="jobTitle" placeholder="e.g. Senior Product Designer" />
+        </div>
+        <div>
+          <div class="field-label">Company / Industry</div>
+          <input type="text" id="jobCompany" placeholder="e.g. Tech startup" />
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Provider -->
+    <div class="card">
+      <div class="api-header">
+        <div class="card-label">AI Provider</div>
+        <button class="key-toggle" id="keyToggle">Add your API key</button>
+      </div>
+      <div class="api-row">
+        <div>
+          <div class="field-label">Provider</div>
+          <select id="provider">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT-4o)</option>
+            <option value="google">Google (Gemini)</option>
+            <option value="mistral">Mistral</option>
+            <option value="cohere">Cohere</option>
+            <option value="xai">xAI (Grok)</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Feedback Style</div>
+          <select id="feedbackStyle">
+            <option value="brutal">Brutal & honest</option>
+            <option value="balanced">Balanced</option>
+            <option value="encouraging">Encouraging</option>
+          </select>
+        </div>
+      </div>
+      <div class="api-section" id="apiSection">
+        <div class="field-label">Your API Key <span class="hint">(saved in your browser)</span></div>
+        <input type="password" id="apiKey" placeholder="Paste your key here..." autocomplete="off" />
+      </div>
+    </div>
+
+    <button class="analyze-btn" id="analyzeBtn">
+      <i class="ti ti-flame"></i> Roast my résumé
+    </button>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <div class="loading-label"><span class="loading-dots">Reading your résumé<span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+
+      <div class="results-header">
+        <div class="overall-score" id="overallScore">—</div>
+        <div class="overall-label">Overall Score</div>
+        <div class="overall-verdict" id="overallVerdict"></div>
+      </div>
+
+      <div class="score-grid" id="scoreGrid"></div>
+
+      <div class="feedback-section">
+        <div class="feedback-title"><i class="ti ti-flame"></i> What's killing it</div>
+        <div class="feedback-body" id="feedbackBad"></div>
+      </div>
+
+      <div class="feedback-section">
+        <div class="feedback-title" style="color:var(--score-good)"><i class="ti ti-check"></i> What's working</div>
+        <div class="feedback-body" id="feedbackGood"></div>
+      </div>
+
+      <div class="feedback-section">
+        <div class="feedback-title" style="color:var(--accent2)"><i class="ti ti-pencil"></i> Rewritten sections</div>
+        <div class="feedback-body" id="feedbackRewrite"></div>
+        <div class="rewrite-box" id="rewriteBox"></div>
+      </div>
+
+      <div class="output-actions">
+        <button class="action-btn" id="copyBtn"><i class="ti ti-copy"></i> Copy feedback</button>
+        <button class="action-btn" id="rerunBtn"><i class="ti ti-refresh"></i> Re-analyze</button>
+        <span class="copied-badge" id="copiedBadge"><i class="ti ti-check"></i> Copied</span>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>Built by <a href="https://github.com/letmebuildappz" target="_blank">Bruder Motion</a> — open source, your API key, your data.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    const ENDPOINTS = {
+      anthropic: 'https://api.anthropic.com/v1/messages',
+      openai:    'https://api.openai.com/v1/chat/completions',
+      google:    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      mistral:   'https://api.mistral.ai/v1/chat/completions',
+      cohere:    'https://api.cohere.ai/v2/chat',
+      xai:       'https://api.x.ai/v1/chat/completions',
+    };
+    const MODELS = { openai: 'gpt-4o', mistral: 'mistral-large-latest', xai: 'grok-3', cohere: 'command-r-plus' };
+
+    // Load saved API key
+    const savedKey = localStorage.getItem('rr_api_key');
+    if (savedKey) {
+      document.getElementById('apiKey').value = savedKey;
+      document.getElementById('apiSection').classList.add('visible');
+      document.getElementById('keyToggle').textContent = 'Hide API key';
+    }
+
+    document.getElementById('apiKey').addEventListener('input', e => {
+      const v = e.target.value.trim();
+      if (v) localStorage.setItem('rr_api_key', v);
+      else localStorage.removeItem('rr_api_key');
+    });
+
+    document.getElementById('keyToggle').addEventListener('click', () => {
+      const s = document.getElementById('apiSection');
+      const t = document.getElementById('keyToggle');
+      const v = s.classList.toggle('visible');
+      t.textContent = v ? 'Hide API key' : 'Add your API key';
+    });
+
+    // File upload
+    let uploadedFileData = null;
+    let uploadedFileType = null;
+
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+    uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); });
+    fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+
+    function handleFile(file) {
+      if (!file) return;
+      const allowed = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'];
+      if (!allowed.includes(file.type)) { showError('Please upload a PDF or image file (PNG, JPG, WEBP).'); return; }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        uploadedFileData = reader.result.split(',')[1];
+        uploadedFileType = file.type;
+        uploadZone.classList.add('has-file');
+        document.getElementById('uploadIcon').className = 'ti ti-circle-check upload-icon';
+        document.getElementById('uploadTitle').textContent = file.name;
+        document.getElementById('uploadSub').textContent = `${(file.size / 1024).toFixed(0)} KB — ready to analyze`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Analyze
+    document.getElementById('analyzeBtn').addEventListener('click', analyze);
+    document.getElementById('rerunBtn').addEventListener('click', analyze);
+
+    async function analyze() {
+      const apiKey   = document.getElementById('apiKey').value.trim();
+      const provider = document.getElementById('provider').value;
+      const resumeText = document.getElementById('resumeText').value.trim();
+      const jobTitle = document.getElementById('jobTitle').value.trim();
+      const jobCompany = document.getElementById('jobCompany').value.trim();
+      const style = document.getElementById('feedbackStyle').value;
+
+      if (!resumeText && !uploadedFileData) { showError('Please upload a résumé file or paste your resume text.'); return; }
+      if (!apiKey) {
+        showError('Please add your API key.');
+        document.getElementById('apiSection').classList.add('visible');
+        document.getElementById('keyToggle').textContent = 'Hide API key';
+        return;
+      }
+
+      hideError();
+      document.getElementById('results').classList.remove('visible');
+      document.getElementById('loadingState').classList.add('visible');
+      document.getElementById('analyzeBtn').disabled = true;
+
+      const jobContext = jobTitle || jobCompany ? `Target role: ${jobTitle} ${jobCompany ? 'at ' + jobCompany : ''}` : 'No specific target role provided.';
+      const styleGuide = style === 'brutal' ? 'Be brutally honest. Don\'t sugarcoat. Call out weak sections directly.' : style === 'encouraging' ? 'Be honest but encouraging. Highlight potential.' : 'Be balanced and constructive.';
+
+      const systemPrompt = `You are a senior hiring manager and resume expert who has reviewed thousands of resumes. ${styleGuide} Respond ONLY with a valid JSON object, no markdown, no backticks, no extra text.`;
+
+      const userPrompt = `Review this resume and provide detailed feedback.
+
+${jobContext}
+
+${resumeText ? 'Resume text:\n' + resumeText : 'Resume provided as file attachment above.'}
+
+Respond with this exact JSON structure:
+{
+  "overall_score": <number 0-100>,
+  "overall_verdict": "<2-3 sentence honest summary>",
+  "scores": {
+    "clarity": <0-100>,
+    "impact": <0-100>,
+    "keywords": <0-100>,
+    "formatting": <0-100>,
+    "relevance": <0-100>
+  },
+  "whats_killing_it": "<detailed bullet-point feedback on weaknesses, be specific>",
+  "whats_working": "<detailed bullet-point feedback on strengths>",
+  "rewrite_intro": "<one sentence explaining what you rewrote>",
+  "rewritten_section": "<rewrite the weakest section — summary, experience bullet, or skills — make it significantly stronger>"
+}`;
+
+      try {
+        const result = await callAPI(provider, apiKey, systemPrompt, userPrompt, uploadedFileData, uploadedFileType);
+        renderResults(result);
+      } catch (err) {
+        showError('Something went wrong: ' + err.message);
+      } finally {
+        document.getElementById('loadingState').classList.remove('visible');
+        document.getElementById('analyzeBtn').disabled = false;
+      }
+    }
+
+    function renderResults(json) {
+      let data;
+      try {
+        const clean = json.replace(/```json|```/g, '').trim();
+        data = JSON.parse(clean);
+      } catch(e) {
+        showError('Could not parse AI response. Try again.');
+        return;
+      }
+
+      const score = data.overall_score;
+      const scoreEl = document.getElementById('overallScore');
+      scoreEl.textContent = score + '/100';
+      scoreEl.className = 'overall-score ' + (score >= 70 ? 'good' : score >= 50 ? 'mid' : 'bad');
+
+      document.getElementById('overallVerdict').textContent = data.overall_verdict || '';
+
+      const categories = ['clarity', 'impact', 'keywords', 'formatting', 'relevance'];
+      const grid = document.getElementById('scoreGrid');
+      grid.innerHTML = '';
+      categories.forEach(cat => {
+        const val = data.scores?.[cat] ?? 0;
+        const cls = val >= 70 ? 'good' : val >= 50 ? 'mid' : 'bad';
+        grid.innerHTML += `<div class="score-item"><div class="score-num ${cls}">${val}</div><div class="score-cat">${cat}</div></div>`;
+      });
+
+      document.getElementById('feedbackBad').textContent = data.whats_killing_it || '';
+      document.getElementById('feedbackGood').textContent = data.whats_working || '';
+      document.getElementById('feedbackRewrite').textContent = data.rewrite_intro || '';
+      document.getElementById('rewriteBox').textContent = data.rewritten_section || '';
+
+      document.getElementById('results').classList.add('visible');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    async function callAPI(provider, apiKey, system, prompt, fileData, fileType) {
+      if (provider === 'anthropic') {
+        const content = [];
+        if (fileData) {
+          if (fileType === 'application/pdf') {
+            content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: fileData } });
+          } else {
+            content.push({ type: 'image', source: { type: 'base64', media_type: fileType, data: fileData } });
+          }
+        }
+        content.push({ type: 'text', text: prompt });
+
+        const res = await fetch(ENDPOINTS.anthropic, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+          body: JSON.stringify({ model: 'claude-opus-4-5', max_tokens: 2000, system, messages: [{ role: 'user', content }] }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.content[0].text;
+      }
+
+      if (provider === 'google') {
+        const parts = [];
+        if (fileData) parts.push({ inline_data: { mime_type: fileType, data: fileData } });
+        parts.push({ text: system + '\n\n' + prompt });
+        const res = await fetch(`${ENDPOINTS.google}?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts }] }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.candidates[0].content.parts[0].text;
+      }
+
+      if (provider === 'openai') {
+        const content = [];
+        if (fileData && fileType !== 'application/pdf') {
+          content.push({ type: 'image_url', image_url: { url: `data:${fileType};base64,${fileData}` } });
+        }
+        content.push({ type: 'text', text: prompt });
+        const res = await fetch(ENDPOINTS.openai, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({ model: MODELS.openai, max_tokens: 2000, messages: [{ role: 'system', content: system }, { role: 'user', content }] }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        return data.choices[0].message.content;
+      }
+
+      if (provider === 'cohere') {
+        const res = await fetch(ENDPOINTS.cohere, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+          body: JSON.stringify({ model: MODELS.cohere, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
+        });
+        const data = await res.json();
+        if (data.message) throw new Error(data.message);
+        return data.message?.content?.[0]?.text || data.text;
+      }
+
+      const res = await fetch(ENDPOINTS[provider], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: MODELS[provider], max_tokens: 2000, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      return data.choices[0].message.content;
+    }
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      const bad = document.getElementById('feedbackBad').textContent;
+      const good = document.getElementById('feedbackGood').textContent;
+      const rewrite = document.getElementById('rewriteBox').textContent;
+      const score = document.getElementById('overallScore').textContent;
+      const text = `Resume Roast — ${score}\n\nWhat's killing it:\n${bad}\n\nWhat's working:\n${good}\n\nRewritten section:\n${rewrite}`;
+      navigator.clipboard.writeText(text).then(() => {
+        const badge = document.getElementById('copiedBadge');
+        badge.classList.add('visible');
+        setTimeout(() => badge.classList.remove('visible'), 2000);
+      });
+    });
+
+    function showError(msg) { const el = document.getElementById('errorMsg'); el.textContent = msg; el.classList.add('visible'); }
+    function hideError() { document.getElementById('errorMsg').classList.remove('visible'); }
+  </script>
+</body>
+</html>
